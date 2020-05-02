@@ -11,3 +11,14 @@ Users.init({
     emailAddress: Sequelize.STRING,
     password: Sequelize.STRING
 }, {Sequelize});
+
+//Synchronize the model 
+(async() => {
+    await Users.sync();
+    try{  
+
+    } catch (error){
+        console.error('Error connecting to the database: ', error);
+    }
+    
+});
