@@ -3,6 +3,7 @@
 // load modules
 const express = require('express');
 const morgan = require('morgan');
+const Sequelize = require('sequelize');
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -12,6 +13,21 @@ const app = express();
 
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
+
+//test connection with authenticate 
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: "fsjstd-restapi.db" 
+});
+(async() => {
+  try {
+    await sequelize.authenticate();
+    console.log('connection has been established sucessfully');
+  } catch (error) {
+    console.log('unable yp connect to the database:', error);
+  }
+
+})();
 
 //Add routes
 //const routes = require('./routes');
