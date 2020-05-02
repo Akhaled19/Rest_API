@@ -13,6 +13,15 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
+//Add routes
+//const routes = require('./routes');
+// const userRoute = require('./routes/user');
+// const courseRoute = require('./routes/course');
+
+//app.use('/api', routes);
+// app.use('/course', courseRoute);
+// app.use('/user', userRoute);
+
 // TODO setup your api routes here
 
 // setup a friendly greeting for the root route
@@ -21,6 +30,17 @@ app.get('/', (req, res) => {
     message: 'Welcome to the REST API project!',
   });
 });
+
+//Send a GET request to /api/courses READ(view) a list of courses (including the user that owns each course)  
+
+//Send a GET request to /api/courses/:id READ(view) a course (including the user that owns it)
+
+//Send a POST request to /api/courses CREATE a course 
+
+//Send a PUT request to /api/courses/:id UPDATE(edit) a course 
+
+//Send a DELETE request to /api/courses/:id DELETE a course
+
 
 // send 404 if no other route matched
 app.use((req, res) => {
