@@ -1,16 +1,62 @@
+'user strick';
+
 const Sequelize = require('sequelize');
 
-//Define a Users model 
-class Users extends Sequelize.Model {}
+// export the initialized Users model 
+module.exports = (sequelize) => {
+    //Defining the Users model
+    class Users extends Sequelize.Model {};
+    //Initializing the Users model
+    Users.init({
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        firstName: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                //custom error message 
+                msg: 'Please provide a value for "firstName" '
+            }
+        },
+        lastName: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                //custom error message
+                msg: 'Please provide a value for "lastName" '
+            }
+        },
+        emailAddress: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                //custom error message 
+                msg: 'Please provide an email address'
+            }
+        },
+        password: {
+            type: Sequelize.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                //Custom error message
+                msg: 'Please provide a value for "password" '
+            }
+        }
+    }, {sequelize});
 
-//Initialize a User model 
-Users.init({
-    id: Sequelize.INTEGER,
-    firstName: Sequelize.STRING,
-    lastName: Sequelize.STRING,
-    emailAddress: Sequelize.STRING,
-    password: Sequelize.STRING
-}, {Sequelize});
+    //defining sequelize Data Association 
+    Users.associate = (model) => {
+        Users.hasMany(model.Courses);
+    }
+    return Users;
+}
 
 //Synchronize the model 
 (async() => {
@@ -21,4 +67,4 @@ Users.init({
         console.error('Error connecting to the database: ', error);
     }
     
-});
+})();
