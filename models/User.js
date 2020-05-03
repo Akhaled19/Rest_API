@@ -5,9 +5,9 @@ const Sequelize = require('sequelize');
 // export the initialized Users model 
 module.exports = (sequelize) => {
     //Defining the Users model
-    class Users extends Sequelize.Model {};
+    class User extends Sequelize.Model {};
     //Initializing the Users model
-    Users.init({
+    User.init({
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
@@ -52,10 +52,16 @@ module.exports = (sequelize) => {
     }, {sequelize});
 
     //defining sequelize Data Association 
-    Users.associate = (model) => {
-        Users.hasMany(model.Courses);
+    User.associate = (model) => {
+        User.hasMany(model.Course, {
+            as: 'userInfo' ,
+            foreignKey: {
+                fieldName: 'userId',
+                allowNull: false
+            }
+        });
     }
-    return Users;
+    return User;
 }
 
 //Synchronize the model 

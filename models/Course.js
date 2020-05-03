@@ -5,33 +5,32 @@ const Sequelize = require('sequelize');
 //export the initialized Courses model 
 module.exports = (sequelize) => {
     //defining the Courses model
-    class Courses extends Sequelize.Model {};
+    class Course extends Sequelize.Model {};
     //initializing the Courses model 
-    Courses.init({
+    Course.init({
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        userId: {
-            type: Sequelize.INTEGER,
-        },
         title: {
             type: Sequelize.STRING,
             allowNull: false,
             validate: {
-                notEmpty: true,
-                //Custom error message 
-                msg: 'Please provide a value for "title" '
+                notEmpty: {
+                    //Custom error message 
+                    msg: 'Please enter a valid title. '
+                }
             }
         },
         description: {
             type: Sequelize.TEXT,
             allowNull: false,
             validate: {
-                notEmpty: true,
-                //Custom error message
-                msg: 'Please provide a value for "description" '
+                notEmpty: {
+                    //Custom error message
+                    msg: 'Please provide a value for "description" '
+                }
             }
         },
         esttimatedTime: {
@@ -43,16 +42,22 @@ module.exports = (sequelize) => {
     }, {sequelize});
 
     //defining sequelize Data Association 
-    Courses.associate = (model) => {
-        Courses.belongsTo(model.Users);
+    Course.associate = (model) => {
+        Course.belongsTo(model.User, {
+            as: 'userInfo',
+            foreignKey: {
+                fieldName: 'userId',
+                allowNull: false
+            }
+        });
     }
 
-    return Courses;
+    return Course;
 }
 
 //Synchronize the model
 (async() => {
-    await Courses.sync();
+    await Course.sync();
 
     try {
 
