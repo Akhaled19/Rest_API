@@ -24,21 +24,20 @@ const sequelize = new Sequelize({
 (async() => {
   try {
     await sequelize.authenticate();
-    console.log('connection has been established sucessfully');
+    console.log('connection has been established sucessfully!');
   } catch (error) {
-    console.log('unable yp connect to the database:', error);
+    console.log('unable to connect to the database:', error);
   }
 
 })();
 
 //Add routes
-//const routes = require('./routes');
-// const userRoute = require('./routes/user');
-// const courseRoute = require('./routes/course');
+const userRoute = require('./routes/user');
+const courseRoute = require('./routes/course');
 
-//app.use('/api', routes);
-// app.use('/course', courseRoute);
-// app.use('/user', userRoute);
+
+app.use('/api', courseRoute);
+app.use('/api', userRoute);
 
 // TODO setup your api routes here
 

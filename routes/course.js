@@ -5,6 +5,9 @@ const Sequelize = require('sequelize');
 const Course = require('../models').Course;
 
 //Send a GET request to /api/courses READ(view) a list of courses (including the user that owns each course)  
+router.get('/courses', (req, res) => {
+    res.json({greeting: "hello world"});
+});
 
 //Send a GET request to /api/courses/:id READ(view) a course (including the user that owns it)
 
