@@ -4,6 +4,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const Sequelize = require('sequelize');
+const models = require('./models');
+
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -46,16 +48,6 @@ app.get('/', (req, res) => {
     message: 'Welcome to the REST API project!',
   });
 });
-
-//Send a GET request to /api/courses READ(view) a list of courses (including the user that owns each course)  
-
-//Send a GET request to /api/courses/:id READ(view) a course (including the user that owns it)
-
-//Send a POST request to /api/courses CREATE a course 
-
-//Send a PUT request to /api/courses/:id UPDATE(edit) a course 
-
-//Send a DELETE request to /api/courses/:id DELETE a course
 
 
 // send 404 if no other route matched
