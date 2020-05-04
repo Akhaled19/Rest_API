@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Sequelize = require('sequelize');
 
-const Course = require('../models').Course;
+const {Course, User} = require('../models');
 
 //Send a GET request to /api/courses READ(view) a list of courses (including the user that owns each course)  
 router.get('/courses', (req, res) => {

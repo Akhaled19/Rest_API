@@ -5,6 +5,8 @@ const express = require('express');
 const morgan = require('morgan');
 const Sequelize = require('sequelize');
 const models = require('./models');
+const userRoute = require('./routes/user');
+const courseRoute = require('./routes/course');
 
 
 // variable to enable global error logging
@@ -32,10 +34,6 @@ const sequelize = new Sequelize({
 })();
 
 //Add routes
-const userRoute = require('./routes/user');
-const courseRoute = require('./routes/course');
-
-
 app.use('/api', courseRoute);
 app.use('/api', userRoute);
 
