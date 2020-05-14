@@ -63,14 +63,3 @@ module.exports = (sequelize) => {
     }
     return User;
 }
-
-//Synchronize the model 
-(async() => {
-    await Users.sync();
-    try{  
-
-    } catch (error){
-        console.error('Error connecting to the database: ', error);
-    }
-    
-})();

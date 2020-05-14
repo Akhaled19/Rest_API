@@ -33,7 +33,7 @@ module.exports = (sequelize) => {
                 }
             }
         },
-        esttimatedTime: {
+        estimatedTime: {
             type: Sequelize.STRING
         },
         materialsNeeded: {
@@ -54,14 +54,3 @@ module.exports = (sequelize) => {
 
     return Course;
 }
-
-//Synchronize the model
-(async() => {
-    await Course.sync();
-
-    try {
-
-    } catch (error) {
-        console.error('Error connecting to the database: ', error);
-    }
-})();
