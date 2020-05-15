@@ -11,8 +11,6 @@ function asyncHandler(callback) {
         try {
             await callback(req, res, next)
         } catch (error) {
-            // res.render("error", {error:error});
-            // console.log(error);
             next(error)
         }
    }
@@ -27,30 +25,53 @@ router.get('/courses', asyncHandler(async(req, res) => {
 
 //Send a GET request to /api/courses/:id READ(view) a course (including the user that owns it)
 router.get('/courses/:id', asyncHandler(async(req, res) => {
-    const course = await Course.findByPk(req.params.id)
-    res.json(course);
+    const course = await Course.findByPk(req.params.id);
+    if(course) {res.json(course)}
+    else {res.status(404).json({message: "Course not found."})};
+    
 }));
 
 //Send a POST request to /api/courses CREATE a course 
-router.post('/courses', asyncHandler(async(req, res) => {  
-    const course = await Course.create({
-        title: req.body.title,
-        description: req.body.description,
-        estimatedTime: req.body.estimatedTime,
-        materialsNeeded: req.body.materialsNeeded,
-        userId: req.body.userId
-    });
-    res.json(course);
+router.post('/courses', asyncHandler(async(req, res) => { 
+    //if all the required fields have been submitted, set HTTP status code to 201 
+    if(req.body.title && req.body.description && req.body.estimatedTime && req.body.materialsNeeded && req.body.userId) {
+        const course = await Course.create({
+            title: req.body.title,
+            description: req.body.description,
+            estimatedTime: req.body.estimatedTime,
+            materialsNeeded: req.body.materialsNeeded,
+            userId: req.body.userId
+        });
+        res.status(201).json(course);
+    //if the some or all required fields are empty, set HTTP status code to 400     
+    } else { res.status(400).json({meassage: "These fields are required."})}
 }));
 
 //Send a PUT request to /api/courses/:id UPDATE(edit) a course 
-router.put('/courses/:id', asyncHandler(async(req, res, next) => {
+router.put('/courses/:id', asyncHandler(async(req, res) => {
     const course = await Course.findByPk(req.params.id);
+    //if the course exists, set the course object properties 
+    //equal to the new proprties sent to us by the client 
+    if(course) {
+        course.title = req.body.title;
+        course.description = req.body.description;
+        course.estimatedTime = req.body.estimatedTime;
+        course.materialsNeeded = req.body.materialsNeeded;
+        course.userId = req.body.userId; 
+
+        //passing the new course to the update method
+        await Course.update(course); 
+        res.status(204).end();
+    
+    }else {res.status(404).json({message: "course not found."})}
+
 }));
 
 //Send a DELETE request to /api/courses/:id DELETE a course
 router.delete('/courses/:id', asyncHandler(async(req, res, next)=> {
     const course = await Course.findByPk(req.params.id);
+    await Course.destroy(course);
+    res.status(204).end();
 }));
 
 module.exports = router;
