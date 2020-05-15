@@ -18,14 +18,28 @@ function asyncHandler(callback) {
 
 //Send a GET request to /api/courses READ(view) a list of courses (including the user that owns each course)  
 router.get('/courses', asyncHandler(async(req, res) => {
-    const courses = await Course.findAll();
+    const courses = await Course.findAll({
+        include: [
+            {
+                model: User,
+                as: 'userInfo',
+            },
+        ]
+    });
     res.json(courses);
 }))
 
 
 //Send a GET request to /api/courses/:id READ(view) a course (including the user that owns it)
 router.get('/courses/:id', asyncHandler(async(req, res) => {
-    const course = await Course.findByPk(req.params.id);
+    const course = await Course.findByPk(req.params.id, {
+        include: [
+            {
+                model: User,
+                as: 'userInfo'
+            },
+        ]
+    });
     if(course) {res.json(course)}
     else {res.status(404).json({message: "Course not found."})};
     
