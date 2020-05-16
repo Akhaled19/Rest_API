@@ -37,7 +37,7 @@ module.exports = (sequelize) => {
             validate: {
                 notEmpty: true,
                 //custom error message 
-                msg: 'Please provide an email address'
+                msg: 'Please provide a valid email address'
             }
         },
         password: {
@@ -46,7 +46,7 @@ module.exports = (sequelize) => {
             validate: {
                 notEmpty: true,
                 //Custom error message
-                msg: 'Please provide a value for "password" '
+                msg: 'Please provide a valid password '
             }
         }
     }, {sequelize});
