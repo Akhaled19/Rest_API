@@ -91,11 +91,15 @@ router.put('/courses/:id', asyncHandler(async(req, res) => {
     try {
         //if course exist, then update its body 
         if(course) {
-            course.title = req.body.title;
-            course.description = req.body.description;
 
             //passing the new course to the update method
-            await Course.update(); 
+            await course.update( {
+                title: req.body.title,
+                description: req.body.description,
+                estimatedTime: req.body.estimatedTime,
+                materialsNeeded: req.body.materialsNeeded,
+                userId: req.body.userId
+            }); 
             res.status(204).end();
 
         } else {res.status(404).json({message: "course not found."})}
@@ -107,7 +111,7 @@ router.put('/courses/:id', asyncHandler(async(req, res) => {
                 attribute: err.path,
                 message: err.message 
             }});
-            
+
             //display simplified error messages and set HTTP status code to 400 
             res.status(400).json(errors);
 
@@ -122,7 +126,7 @@ router.delete('/courses/:id', asyncHandler(async(req, res) => {
     const course = await Course.findByPk(req.params.id);
     //if the course exists, delete the course 
     if(course) {
-        await Course.destroy();
+        await course.destroy();
         res.status(204).end();
     } else {res.status(404).json({message: "Course not found."})}
    
