@@ -11,7 +11,8 @@ function asyncHandler(callback) {
         try {
             await callback(req, res, next)
         } catch (error) {
-            next(error)
+            res.status(500).json({message: error.message});
+            next(error);
         }
    }
 }
@@ -42,6 +43,7 @@ router.get('/courses', asyncHandler(async(req, res) => {
 router.get('/courses/:id', asyncHandler(async(req, res) => {
     const course = await Course.findByPk(req.params.id, {
         attributes: {
+            //select only some attributes
             exclude: [
                 "createdAt",
                 "updatedAt" 
@@ -55,69 +57,72 @@ router.get('/courses/:id', asyncHandler(async(req, res) => {
         ]
     });
     if(course) {res.json(course)}
-    else {res.status(404).json({message: "Course not found."})};
-    
+    else {res.status(404).json({message: "Course not found."})};  
 }));
 
 
 //Send a POST request to /api/courses CREATE a course 
-router.post('/courses', asyncHandler(async(req, res, next) => { 
-    //if all the required fields have been submitted, set HTTP status code to 201 
-    if(req.body.title && req.body.description && req.body.estimatedTime && req.body.materialsNeeded && req.body.userId) {
-        const course = await Course.create({
-            title: req.body.title,
-            description: req.body.description,
-            estimatedTime: req.body.estimatedTime,
-            materialsNeeded: req.body.materialsNeeded,
-            userId: req.body.userId
-        });
-        res.status(201).json(course);
-    //if the some or all required fields are empty, set HTTP status code to 400     
-    } else { res.status(400).json({meassage: "These fields are required."})}
+router.post('/courses', asyncHandler(async(req, res) => { 
+    let course;
+    try{
+        //if all the required fields have been submitted, redirect to home & set HTTP status code to 201 
+        course = await Course.create(req.body);
+        res.status(201).location(`/api/courses/${course.id}`).end();
+
+    } catch (error){
+        //checking the errors 
+        if(error.name === "SequelizeValidationError" ) {
+            const errors = error.errors.map((err) => { return {
+                attribute: err.path,
+                message: err.message
+            }}); 
+            //display simplified error messages and set HTTP status code to 400 
+            res.status(400).json(errors);
+
+        //error caught in the asynchandler's catch block    
+        } else {throw error}
+    }
 }));
 
 
 //Send a PUT request to /api/courses/:id UPDATE(edit) a course 
-router.put('/courses/:id', asyncHandler(async(req, res, next) => {
-    const course = await Course.findByPk(req.params.id, {
-        include: [
-            {
-                model: User,
-                as: 'userInfo',
-            },
-        ]
-    });
-    //if the course exists, set the course object properties 
-    //equal to the new proprties sent to us by the client 
-    if(course) {
-        course.title = req.body.title;
-        course.description = req.body.description;
-        course.estimatedTime = req.body.estimatedTime;
-        course.materialsNeeded = req.body.materialsNeeded;
-        course.userId = req.body.userId; 
+router.put('/courses/:id', asyncHandler(async(req, res) => {
+    const course = await Course.findByPk(req.params.id);
+    try {
+        //if course exist, then update its body 
+        if(course) {
+            course.title = req.body.title;
+            course.description = req.body.description;
 
-        //passing the new course to the update method
-        await Course.update(course); 
-        res.status(204).end();
-    
-    } else {res.status(404).json({message: "course not found."})}
+            //passing the new course to the update method
+            await Course.update(); 
+            res.status(204).end();
 
+        } else {res.status(404).json({message: "course not found."})}
+
+    } catch (error) {
+        if(error.name === "SequelizeValidationError") {
+
+            const errors = error.errors.map((err) => { return {
+                attribute: err.path,
+                message: err.message 
+            }});
+            
+            //display simplified error messages and set HTTP status code to 400 
+            res.status(400).json(errors);
+
+         //error caught in the asynchandler's catch block    
+        } else {throw error}
+    }
 }));
 
 
 //Send a DELETE request to /api/courses/:id DELETE a course
-router.delete('/courses/:id', asyncHandler(async(req, res, next)=> {
-    const course = await Course.findByPk(req.params.id, {
-        include: [
-            {
-                model: User,
-                as: 'userInfo',
-            },
-        ]
-    });
+router.delete('/courses/:id', asyncHandler(async(req, res) => {
+    const course = await Course.findByPk(req.params.id);
     //if the course exists, delete the course 
     if(course) {
-        await Course.destroy(course);
+        await Course.destroy();
         res.status(204).end();
     } else {res.status(404).json({message: "Course not found."})}
    
