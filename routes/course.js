@@ -88,36 +88,34 @@ router.post('/courses', asyncHandler(async(req, res) => {
 //Send a PUT request to /api/courses/:id UPDATE(edit) a course 
 router.put('/courses/:id', asyncHandler(async(req, res) => {
     const course = await Course.findByPk(req.params.id);
-    try {
         //if course exist, then update its body 
         if(course) {
+            //wrapping everyting in a conditional statemnet that checks if all the required properties have values 
+            if(req.body.title && req.body.description) {
+                try {
+                    //passing the new course to the update method
+                    await course.update(req.body); 
+                    res.status(204).end();
 
-            //passing the new course to the update method
-            await course.update( {
-                title: req.body.title,
-                description: req.body.description,
-                estimatedTime: req.body.estimatedTime,
-                materialsNeeded: req.body.materialsNeeded,
-                userId: req.body.userId
-            }); 
-            res.status(204).end();
+                } catch (error) {
+                    if(error.name === "SequelizeValidationError") {
+            
+                        const errors = error.errors.map((err) => { return {
+                            attribute: err.path,
+                            message: err.message 
+                        }});
+            
+                        //display simplified error messages and set HTTP status code to 400 
+                        res.status(400).json(errors);
+            
+                    //error caught in the asynchandler's catch block    
+                    } else {throw error}
+                } 
+            }  else { res.status(400).json('Title and Description properties are required')}    
 
         } else {res.status(404).json({message: "course not found."})}
 
-    } catch (error) {
-        if(error.name === "SequelizeValidationError") {
 
-            const errors = error.errors.map((err) => { return {
-                attribute: err.path,
-                message: err.message 
-            }});
-
-            //display simplified error messages and set HTTP status code to 400 
-            res.status(400).json(errors);
-
-         //error caught in the asynchandler's catch block    
-        } else {throw error}
-    }
 }));
 
 
