@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Sequelize = require('sequelize');
 const bcryptjs = require('bcryptjs');
+const auth = require('basic-auth');
 
 const {User} = require('../models')
 
@@ -16,9 +17,57 @@ function asyncHandler(callback) {
         }
     }
 } 
+
+//Authentication Middleware to wrap eeach route that needs to be protected 
+const authenticateUser = (req, res, next) => {
+    let message;
+
+    //parse the user's credentials from the authorization header 
+    const credentials = auth(req);
+    //if user's credentials are available...
+    if(credentials) {
+        //retrieve username from the db
+        const user = User.findOne({ where: { emailAddress: credentials.name}});
+
+         //if a user was succesfully found
+        if(user) {
+            //using compareSync bcryptjs method to compare the hashed password with the credential pass
+            const authenticated = bcryptjs
+                .compareSync(credentials.pass, user.password);
+            
+            //if the password match...    
+            if(authenticated) {
+                //add the user account to the request object
+                req.currentUser = user
+            } else {
+                message = `Authentication failure for email address: ${user.emailAddress}`;
+            }   
+        } else {
+            message = `Authentication failure for email address: ${credentials.name}`;
+        }
+    } else {
+        message = 'Auth header not found';
+    }
+    //if user authentication failed...
+    if(message) {
+        console.warn(message);
+        //return a response with a 401 HTTP status code
+        res.status(401).json({message: 'Acess Denied'});
+    //or if user authenication succeeded...    
+    } else {
+        next();
+    }
+}
+
 //Send a GET request to /api/users to READ(view) currently authenticated user
-router.get('/users', asyncHandler(async(req, res) => {
-    const user = await User.findByPk();
+router.get('/users', authenticateUser,asyncHandler(async(req, res) => {
+    const user = req.currentUser;
+    res.json({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailAddress: user.emailAddress,
+    });
 }));
 
 
