@@ -4,13 +4,14 @@ const Sequelize = require('sequelize');
 
 const {User} = require('../models')
 
-//handler function 
+//middleare function to wrap each route in a try catch block 
 function asyncHandler(callback) {
     return async(req, res, next) => {
         try {
-            await callback(req, res)
+            await callback(req, res, next)
         } catch (error) {
-            res.render("error", {error});
+            res.status(500).json({message: error.message});
+            next(error)
         }
     }
 } 
