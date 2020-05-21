@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Sequelize = require('sequelize');
+const bcryptjs = require('bcryptjs');
 
 const {User} = require('../models')
 
@@ -20,12 +21,15 @@ router.get('/users', asyncHandler(async(req, res) => {
     const user = await User.findByPk();
 }));
 
+
 //Send a POST request to /api/users to CREATE a user 
 router.post('/users', asyncHandler(async(req, res) => {
     let user;
     try {
         //if all the required fields have been submitted, redirect to home & set HTTP status code to 201
         user = await User.create(req.body);
+        //hashing the user's pasword before the user is added to the users array
+        user.password = bcryptjs.hashSync(user.password);
         res.status(201).location('/api/users').end();
 
     } catch (error) {
