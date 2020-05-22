@@ -53,7 +53,10 @@ module.exports = (sequelize) => {
             type: Sequelize.STRING,
             allowNull: false,
             validate: {
-                msg: 'Please enter a password'
+                notEmpty: {
+                    args: true,
+                    msg: 'Please enter a password'
+                }
             }
         }
     }, {sequelize});
