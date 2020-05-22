@@ -73,13 +73,16 @@ router.get('/users', authenticateUser,asyncHandler(async(req, res) => {
 
 //Send a POST request to /api/users to CREATE a user 
 router.post('/users', asyncHandler(async(req, res) => {
-    let user;
+   
     try {
-        //if all the required fields have been submitted, redirect to home & set HTTP status code to 201
-        user = await User.create(req.body);
+        const user = req.body;
+
         //hashing the user's pasword before the user is added to the users array
         user.password = bcryptjs.hashSync(user.password);
-        res.status(201).location('/api/users').end();
+        
+        //if all the required fields have been submitted, redirect to home & set HTTP status code to 201
+        await User.create(user);
+        res.status(201).location('/').end();
 
     } catch (error) {
         //checking the errors 
@@ -88,11 +91,23 @@ router.post('/users', asyncHandler(async(req, res) => {
                 attribute: err.path,
                 message: err.message
             }});
-            //display simplified error messages and set HTTP status code to 400 
-            res.status(400).json(errors)
+            if(errors[0] === 'Please enter a valid email address.') {
+                res.status(401).json(errors);
+            } else {
+                //display simplified error messages and set HTTP status code to 400 
+                res.status(400).json(errors)
+            }
 
          //error caught in the asynchandler's catch block     
-        } else {throw error}
+        } else if(errors.name === "SequelizeUniqueConstraintError") {
+            const errors = error.errors.map(err => {return {
+                attribute: err.path,
+                message: err.message
+            }});
+            res.status(401).json(errors);
+        } else {
+            throw error
+        }
     }
 }));
 
