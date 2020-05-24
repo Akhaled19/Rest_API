@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const Sequelize = require('sequelize');
+//const Sequelize = require('sequelize');
 const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
 
-const {User} = require('../models')
+const {User} = require('../models');
 
 //middleare function to wrap each route in a try catch block 
 function asyncHandler(callback) {
@@ -19,26 +19,27 @@ function asyncHandler(callback) {
 } 
 
 //Authentication Middleware to wrap eeach route that needs to be protected 
-const authenticateUser = (req, res, next) => {
-    let message;
-
+const authenticateUser = async(req, res, next) => {
+    let message =  '';
     //parse the user's credentials from the authorization header 
     const credentials = auth(req);
+
     //if user's credentials are available...
     if(credentials) {
-        //retrieve username from the db
-        const user = User.findOne({ where: { emailAddress: credentials.name}});
+        //retrieve user from the db by email address.
+        // The email is supplied as the user's key in the Authorization header, but in the credentials it is stored as name   
+        const user = await User.findOne({ where: { emailAddress: credentials.name }});
 
          //if a user was succesfully found
         if(user) {
             //using compareSync bcryptjs method to compare the hashed password with the credential pass
-            const authenticated = bcryptjs
-                .compareSync(credentials.pass, user.password);
+            const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
             
             //if the password match...    
             if(authenticated) {
+                console.log(`Authentication sucessful for username: ${user.emailAddress}`);
                 //add the user account to the request object
-                req.currentUser = user
+                req.currentUser = user;
             } else {
                 message = `Authentication failure for email address: ${user.emailAddress}`;
             }   
@@ -48,16 +49,17 @@ const authenticateUser = (req, res, next) => {
     } else {
         message = 'Auth header not found';
     }
+
     //if user authentication failed...
     if(message) {
         console.warn(message);
         //return a response with a 401 HTTP status code
-        res.status(401).json({message: 'Acess Denied'});
+        res.status(401).json({ message: 'Access Denied.' });
     //or if user authenication succeeded...    
     } else {
         next();
     }
-}
+};
 
 //Send a GET request to /api/users to READ(view) currently authenticated user
 router.get('/users', authenticateUser,asyncHandler(async(req, res) => {
@@ -66,7 +68,7 @@ router.get('/users', authenticateUser,asyncHandler(async(req, res) => {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
-        emailAddress: user.emailAddress,
+        emailAddress: user.emailAddress
     });
 }));
 
@@ -76,7 +78,7 @@ router.post('/users', asyncHandler(async(req, res) => {
    
     try {
         const user = req.body;
-
+        //if the req body includes a password 
         if(user.password) {
             //hashing the user's pasword before the user is added to the users array
             user.password = bcryptjs.hashSync(user.password);
@@ -86,15 +88,15 @@ router.post('/users', asyncHandler(async(req, res) => {
         res.status(201).location('/').end();
 
     } catch (error) {
-        //checking the errors 
+        //checking for the validations errors 
         if(error.name === "SequelizeValidationError") {
             const errors = error.errors.map(err => {return {
                 attribute: err.path,
                 message: err.message
             }});
             res.status(400).json(errors);
-                
-        } else if(errors.name === "SequelizeUniqueConstraintError") {
+        //checking for the Unique validations errors        
+        } else if(error.name === "SequelizeUniqueConstraintError") {
             const errors = error.errors.map(err => {return {
                 attribute: err.path,
                 message: err.message
