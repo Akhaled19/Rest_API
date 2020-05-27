@@ -35,7 +35,7 @@ const authenticateUser = async(req, res, next) => {
         console.log(`the user is : ${user}`);
          //if a user was succesfully found
         if(user) {
-            //using compareSync bcryptjs method to compare the hashed password with the credential pass
+            //using compareSync bcryptjs method to compare the hashed-salted password with the credential pass
             const authenticated = bcryptjs.compareSync(credentials.pass, user.password);
             
             //if the password match...    
@@ -83,8 +83,8 @@ router.post('/users', asyncHandler(async(req, res) => {
         const user = req.body;
         //if the req body includes a password 
         if(user.password) {
-            //hashing the user's pasword before the user is added to the users array
-            user.password = bcryptjs.hashSync(user.password);
+            //hashing & salting the user's pasword before the user is added to the users array
+            user.password = bcryptjs.hashSync(user.password, 10);
         }
         //if all the required fields have been submitted, redirect to home & set HTTP status code to 201
         await User.create(user);
