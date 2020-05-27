@@ -1,6 +1,7 @@
 const express = require('express');
+//creates mini express server
 const router = express.Router();
-//const Sequelize = require('sequelize');
+const Sequelize = require('sequelize');
 const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
 
@@ -12,6 +13,7 @@ function asyncHandler(callback) {
         try {
             await callback(req, res, next)
         } catch (error) {
+            console.log(error);
             res.status(500).json({message: error.message});
             next(error)
         }
@@ -29,7 +31,8 @@ const authenticateUser = async(req, res, next) => {
         //retrieve user from the db by email address.
         // The email is supplied as the user's key in the Authorization header, but in the credentials it is stored as name   
         const user = await User.findOne({ where: { emailAddress: credentials.name }});
-
+        
+        console.log(`the user is : ${user}`);
          //if a user was succesfully found
         if(user) {
             //using compareSync bcryptjs method to compare the hashed password with the credential pass
