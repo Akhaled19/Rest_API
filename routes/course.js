@@ -35,10 +35,10 @@ router.get('/courses', asyncHandler(async(req, res) => {
 
 
 //Send a GET request to /api/courses/:id READ(view) a course (including the user that owns it)
-router.get('/courses/:id', asyncHandler(async(req, res) => {
-    const course = await Course.findByPk(req.params.id, {
+router.get('/courses/:id', setCourse, asyncHandler(async(req, res) => {
+    setCourse.course = await Course.findByPk(req.params.id, {
         attributes: {
-            //select only some attributes
+        //select only some attributes
             exclude: [
                 "createdAt",
                 "updatedAt" 
@@ -58,8 +58,7 @@ router.get('/courses/:id', asyncHandler(async(req, res) => {
             },
         ]
     });
-    if(course) {res.json(course)}
-    else {res.status(404).json({message: "Course not found."})};  
+    res.json(setCourse.course); 
 }));
 
 
