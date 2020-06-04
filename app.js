@@ -38,7 +38,7 @@ const sequelize = new Sequelize({
     console.log('connection has been established sucessfully!');
 
   } catch (error) {
-    console.log('unable to connect to the database:', error);
+    console.log('unable to connect to the database: ', error);
   }
 
 })();
