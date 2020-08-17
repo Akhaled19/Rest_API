@@ -30,7 +30,7 @@ router.get('/courses', asyncHandler(async(req, res) => {
             },
         ]
     });
-    res.json(courses);
+    res.json({courses});
 }))
 
 
@@ -58,7 +58,7 @@ router.get('/courses/:id', setCourse, asyncHandler(async(req, res) => {
             },
         ]
     });
-    res.json(setCourse.course); 
+    res.json({course: setCourse.course}); 
 }));
 
 
@@ -93,7 +93,7 @@ router.put('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, 
         if(req.currentUser.id === setCourse.course.userId) {
             try {
                 //passing the new course to the update method
-                await course.update(req.body); 
+                await setCourse.course.update(req.body); 
                 res.status(204).end();
 
             } catch (error) {
@@ -107,8 +107,8 @@ router.put('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, 
                     res.status(400).json(errors);
             
                 //error caught in the asynchandler's catch block    
-                } else {throw error}
-            }
+                } else {next(error)}
+            }    
         } else {
             res.status(403).json('Acess Denied. This user dose not own this course.');
         } 
