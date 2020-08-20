@@ -14,7 +14,7 @@ const authenticateUser = async(req, res, next) => {
         // The email is supplied as the user's key in the Authorization header, but in the credentials it is stored as name   
         const user = await User.findOne({ where: { emailAddress: credentials.name }});
         
-        console.log(`the user is : ${user}`);
+        console.log(`the user is from basicAuth method : ${user}`);
          //if a user was succesfully found
         if(user) {
             //using compareSync bcryptjs method to compare the hashed-salted password with the credential pass
@@ -22,7 +22,7 @@ const authenticateUser = async(req, res, next) => {
             
             //if the password match...    
             if(authenticated) {
-                console.log(`Authentication sucessful for username: ${user.emailAddress}`);
+                console.log(`Authentication sucessful for username: ${user.id}`);
                 //add the user account to the request object
                 req.currentUser = user;
             } else {

@@ -17,6 +17,7 @@ function asyncHandler(callback) {
 //middleware function to wrap /api/course/:id route to check if the course exists 
 async function setCourse( req, res, next){
     const course = await Course.findByPk(req.params.id);
+    console.log('this is the course from setCourse', course.userId);
     if(!course) {
         return res.status(404).json({message: "course not found."});
     }
