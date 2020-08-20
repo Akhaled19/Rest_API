@@ -85,12 +85,13 @@ router.post('/courses', authenticateUser, asyncHandler(async(req, res) => {
     }
 }));
 
-
 //Send a PUT request to /api/courses/:id UPDATE(edit) a course 
 router.put('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, res) => {
+    const course = await Course.findByPk(req.params.id);
     //wrapping everyting in a conditional statemnet that checks if all the required properties have values 
     if(req.body.title && req.body.description) {
-        if(req.currentUser.id === setCourse.course.userId) {
+        console.log('current user', req.user.id);
+        if(req.currentUser.id === course.userId) {
             try {
                 //passing the new course to the update method
                 await setCourse.course.update(req.body); 
