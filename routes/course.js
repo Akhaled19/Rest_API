@@ -88,9 +88,9 @@ router.post('/courses', authenticateUser, asyncHandler(async(req, res) => {
 //Send a PUT request to /api/courses/:id UPDATE(edit) a course 
 router.put('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, res) => {
    setCourse.course = await Course.findByPk(req.params.id);
-   console.log('this is body title from put request', setCourse.course.title);
+   
     //wrapping everyting in a conditional statemnet that checks if all the required properties have values 
-    if(setCourse.course.title && setCourse.course.description) {
+    if(req.body.title && req.body.description) {
         //console.log('current user', req.user.id);
         if(req.currentUser.id === setCourse.course.userId) {
             try {
@@ -121,6 +121,7 @@ router.put('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, 
 
 //Send a DELETE request to /api/courses/:id DELETE a course
 router.delete('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, res) => {
+    setCourse.course = await Course.findByPk(req.params.id);
     await setCourse.course.destroy();
     res.status(204).end();
 }));
