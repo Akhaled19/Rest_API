@@ -96,6 +96,7 @@ router.put('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, 
             try {
                 //passing the new course to the update method
                 await setCourse.course.update(req.body); 
+                console.log('this is the body sent to the update', req.body);
                 res.status(204).end();
 
             } catch (error) {
