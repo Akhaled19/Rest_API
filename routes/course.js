@@ -122,8 +122,15 @@ router.put('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, 
 //Send a DELETE request to /api/courses/:id DELETE a course
 router.delete('/courses/:id', authenticateUser, setCourse, asyncHandler(async(req, res) => {
     setCourse.course = await Course.findByPk(req.params.id);
-    await setCourse.course.destroy();
-    res.status(204).end();
+    if(req.currentUser.id === setCourse.course.userId) {
+        await setCourse.course.destroy();
+        res.status(204).end();
+    } else {
+        res.status(403).json('Acess Denied. This user dose not own this course.');
+    }
+
+    
+
 }));
 
 module.exports = router;
